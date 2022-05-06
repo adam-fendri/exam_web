@@ -19,6 +19,9 @@ Etudiantr!{% endblock %}
             <td>{{etudiant.nom}}</td>
             <td><{{etudiant.prenom}}/td>
             <td>{{etudiant.section}}</td>
+            <td><a href="{{path('etudiant.add')}}'">add</a></td>
+            <td><a href="{{path('etudiant.edit')}}'">edit</a></td>
+            <td><a href="{{path('etudiant.delete')}}'">delete</a></td>
         </tr>
     </table>
     {% for etudiant in etudiants %}
