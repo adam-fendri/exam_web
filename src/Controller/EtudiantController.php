@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Etudiant;
+use App\Form\EtudiantType;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -22,67 +23,61 @@ class EtudiantController extends AbstractController
         ]);
     }
 
-    #[Route('/etudiant/add', name: 'etudiant.add')]
-    public function add(ManagerRegistry $doctrine,  Request $request): Response
+
+//    #[Route('/etudiant/add', name: 'etudiant.add')]
+    #[Route('/etudiant/edit/{id?0}', name: 'etudiant.edit')]
+    public function add(Etudiant $etudiant = null ,ManagerRegistry $doctrine,  Request $request): Response
     {
-        $etudiant = new Etudiant();
+        $new = false;
+        if (!$etudiant) {
+            $new = true;
+            $etudiant = new Etudiant();
+        }
+
         $form = $this->createForm(EtudiantType::class, $etudiant);
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             //si oui
-            //on va ajouter lobjet personne dans la BD
+            //on va ajouter lobjet etudiant dans la BD
             $entityManager = $doctrine->getManager();
             $entityManager->persist($etudiant);
             $entityManager->flush();
             //msg success
-            $this->addFlash("success", $etudiant->getNom() . "a ete ajoute");
+            if($new) {
+                $message = " a été ajouté avec succès";
+            } else {
+                $message = " a été mis à jour avec succès";
+            }
+            $this->addFlash('success',$etudiant->getNom(). $message );
             //rediriger vers la liste de success
             return $this->redirectToRoute('etudiant');
         } else {
             //sinon
-            return $this->render('etudiant.add.html.twig', ['form' => $form->createView()]);
             //on affiche le formulaire
-        }
+            return $this->render('etudiant/etudiant.add.html.twig', ['form' => $form->createView()]);
 
-        #[Route('/etudiant/edit/{id}', name: 'etudiant.edit')]
-    public function editPersonne(Etudiant $etudiant=null, ManagerRegistry $doctrine, Request $request ): Response
-    {
-        if(!$etudiant){
-            $etudiant= new Etudiant();
         }
-        $form=$this->createForm(EtudiantType::class, $etudiant);
-        $form->remove('createdAt');
-        $form->remove('updatedAt');
+    }
 
+    #[Route('/add', name: 'etudiant.add')]
+    public function addEtudiant(ManagerRegistry $doctrine,Request $request): Response
+    {  $entityManager=$doctrine->getManager();
+        $etudiant=new Etudiant();
+        $form=$this->createForm(EtudiantType::class,$etudiant);
         $form->handleRequest($request);
-        //est ce que le formulaire a ete soumis
-        if($form->isSubmitted()){
-            //si oui
-            //on va ajouter lobjet personne dans la BD
-            $entityManager=$doctrine->getManager();
+        if(!$form->isSubmitted()){
+            return $this->render('etudiant/etudiant.add.html.twig',[
+                'form'=>$form->createView(),
+            ]);}
+        else{
             $entityManager->persist($etudiant);
             $entityManager->flush();
-            //msg success
-            $this->addFlash("success", $etudiant->getName()."a ete edite");
-            //rediriger vers la liste de success
+            $this->addFlash('success',$etudiant->getNom().' est ajouté avec success');
             return $this->redirectToRoute('etudiant');
-        }else{
-            //sinon
-            return $this->render('etudiant.add.html.twig',['form'=>$form->createView()]);
-            //on affiche le formulaire
         }
-
-
-
-
-        return $this->render('etudiant.add.html.twig', [
-            'form'=> $form->createView()
-        ]);
     }
 
-
-    }
-    #[Route('/etudaint/delete/{id}', name: 'etudiant.delete')]
+    #[Route('/etudaint/delete/{id?0}', name: 'etudiant.delete')]
     public function delete(Etudiant $etudiant = null, ManagerRegistry $doctrine): RedirectResponse
     {
         //recuperer la personne

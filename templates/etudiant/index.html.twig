@@ -1,30 +1,54 @@
-Etudiantr!{% endblock %}
+{% extends 'base.html.twig' %}
 
+{% block title %}Hello ExamController!{% endblock %}
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Liste des etudiants! ✅</h1>
-    <table>
-        <tr>
-            <td>Nom</td>
-            <td>Prenom</td>
+    <H1>Liste des etudiant</H1>
+    {% for msg in app.session.flashBag.get('success') %}
+        <div class="alert alert-success">
+            {{ msg}}
+        </div>
+    {% endfor %}
+    {% for msg in app.session.flashBag.get('error') %}
+        <div class="alert alert-danger">
+            {{ msg }}
+        </div>
+    {% endfor %}
+    <a href="{{ path('etudiant.add') }}">Ajouter un etudiant</a>
+    <table class="table" style="border: 3px black solid">
+        <tr class="alert alert-dark " style="border: 3px black solid">
+            <td >Prenom</td>
+            <td >Nom</td>
             <td>Section</td>
+            <td>Action</td>
         </tr>
-        {% for etudiant in etudiants %}
-        <tr>
-            <td>{{etudiant.nom}}</td>
-            <td><{{etudiant.prenom}}/td>
-            <td>{{etudiant.section}}</td>
-            <td><a href="{{path('etudiant.add')}}'">add</a></td>
-            <td><a href="{{path('etudiant.edit')}}'">edit</a></td>
-            <td><a href="{{path('etudiant.delete')}}'">delete</a></td>
-        </tr>
-    </table>
-    {% for etudiant in etudiants %}
 
-</div>
+        {% for element in etudiants %}
+            {% if(element.getId()%5)==0 %}
+                <tr class="alert alert-success" >
+            {% elseif (element.getId()%5)==1 %}
+                <tr class="alert alert-info">
+            {% elseif (element.getId()%5)==2 %}
+                <tr class="alert alert- muted">
+            {% elseif (element.getId()%5)==3 %}
+                <tr class="alert alert-danger">
+            {% elseif (element.getId()%5)==4 %}
+                <tr class="alert alert- warning">
+            {% endif %}
+
+            <td>{{ element.nom }}</td>
+            <td>{{ element.prenom }}</td>
+            <td>{% if element.section==null%}
+                    Etudiant non encore effecte a une section
+                {% else %}
+                    {{ element.section }}
+                {% endif%}
+            </td>
+            <td>
+                <a href="{{ path('etudiant.edit',{'id':element.getId()}) }}">edit</a>
+                <a href="{{ path('etudiant.delete',{ 'id':element.getId() }) }}">delete</a>
+            </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <script src="{{ asset('assets/js/scripts.js') }}"></script>
 {% endblock %}
